@@ -1,0 +1,32 @@
+{
+  "name": "@pipeworx/mcp-usda-market-news",
+  "version": "0.1.0",
+  "description": "USDA AMS Market News -- Livestock Mandatory Price Reporting (LMR).",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "bin": {
+    "mcp-usda-market-news": "bin/cli.js"
+  },
+  "keywords": ["mcp", "mcp-server", "model-context-protocol", "pipeworx", "usda-market-news"],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pipeworx-io/mcp-usda-market-news.git"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "tsx": "^4.19.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "@cloudflare/workers-types": "^4.20260405.1"
+  },
+  "pipeworx": {
+    "sourceHash": "v1-57419ff6f1c21991ff4c4ed95badee70bc84fab5d3ced82cb38e0d9e4bca8046",
+    "sourceCommit": "01241619b78233fd55d0e3612331499a63f03ae7"
+  }
+}
