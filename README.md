@@ -1,21 +1,24 @@
 # @pipeworx/usda-market-news
 
-USDA AMS livestock price reports from Market News: direct slaughter cattle, boxed beef and cow-beef cutouts, hogs and pork, lamb. Dated rows with the report's own basis (class, selling basis, grade, weight range) and low / high / weighted-average prices kept as separate fields.
+USDA Agricultural Marketing Service, Market News: livestock price reports (direct slaughter cattle, boxed beef and cow-beef cutouts, hogs and pork, lamb) and, with a registered key, the My Market News reports for fruit and vegetables (shipping-point, terminal-market and import-crossing prices), grain, hay, cotton and ornamentals. Dated rows with the report's own basis (class, selling basis, grade, weight range) and low / high / weighted-average prices kept as separate fields.
 
-Part of [Pipeworx](https://pipeworx.io) — an MCP gateway connecting AI agents to 1878+ live data sources. This is an independent, unofficial integration — not affiliated with, endorsed by, or published by the upstream provider.
+Part of [Pipeworx](https://pipeworx.io) — an MCP gateway connecting AI agents to 1857+ live data sources. This is an independent, unofficial integration — not affiliated with, endorsed by, or published by the upstream provider.
 
 ## Tools
 
 - `ams_report_search(query?, species?, limit?)` — finds livestock price reports by title words and species; returns report id, report code, the sections each report has, and when AMS last published it. A search with no match says what is not covered instead of returning an empty list.
 - `ams_report(report_id, section?, date?, start_date?, end_date?, limit?)` — reads rows from one report section. Every response states the report family, report title, market type and office. With no date it returns the most recent report date. A date or section AMS has no rows for returns `status: "no_rows_for_request"` with the report's last published date, never an empty array or a zero.
 
+- `ams_market_report_search(query?, market_type?, limit?)` -- finds My Market News reports outside livestock (produce shipping point and terminal markets, Mexico crossings, grain bids, hay, cotton) by words in the title, market type or office. A search with no match returns the market types that exist, never a bare empty list. Commodities and crossing districts are fields inside a report's rows, not in its title: find the office report here, then filter its rows in `ams_market_report`.
+- `ams_market_report(report_id, commodity?, district?, section?, date?, start_date?, end_date?, limit?)` -- reads dated rows from one such report, optionally keeping one commodity (for example lime) and one district or market location (for example mexico crossings through texas). Reports are daily; a weekly view is a start_date/end_date range of up to 31 days. Low / high / mostly / mean prices stay separate fields with the package or unit AMS gives. A date or commodity with no rows returns a status that says so, with the commodities the report does carry.
+
 ## Auth
 
-Keyless.
+The two livestock tools are keyless. The two My Market News tools use the Pipeworx platform key for the AMS My Market News registered service; callers can pass their own free key as `_apiKey`.
 
 ## What is NOT covered
 
-Produce shipping-point and terminal-market prices (limes, tomatoes, onions and the rest of Specialty Crops Market News), grain, and poultry/egg reports are a different AMS service that requires a registered account key. They are not served by this pack. Asking for them here returns a `no_match` that says so. Serving them needs a key registered by a person (a Bruce step); nothing in this pack pretends to.
+Poultry and egg reports, and anything AMS does not publish through Market News. Livestock reports are `ams_report*`; everything else AMS publishes in Market News is `ams_market_report*`.
 
 ## Reading prices correctly
 
@@ -27,6 +30,7 @@ Produce shipping-point and terminal-market prices (limes, tomatoes, onions and t
 
 ## Data sources
 
+- USDA Agricultural Marketing Service, My Market News (specialty crops, grain, hay, cotton, ornamentals). US federal data.
 - USDA Agricultural Marketing Service, Livestock Mandatory Price Reporting (Market News). US federal data.
 
 Behaviour worth knowing: a request for a date AMS has not published answers with a plain "No Results Found." string rather than an empty list, which is how `no_rows_for_request` is detected. Weekly reports publish on one weekday only, so a daily date will often come back empty for them. The same report id has different row shapes in different sections (head counts in `Summary`, prices in `Detail` for most cattle reports).
@@ -75,7 +79,7 @@ directly, instead of just this one's:
 }
 ```
 
-Both URLs reach the same gateway and the same 1878+ data sources. The
+Both URLs reach the same gateway and the same 1857+ data sources. The
 only difference is which pack's tools are listed **directly**; `ask_pipeworx`
 reaches all of them from either one.
 
@@ -89,10 +93,12 @@ curl -X POST https://gateway.pipeworx.io/v1/tools/ams_report_search \
 
 No account needed for the first calls. Inspect any tool: `GET https://gateway.pipeworx.io/v1/tools/ams_report_search`. Find one: `POST https://gateway.pipeworx.io/v1/tools/search_packs` with `{"query":"..."}`.
 
-## Standalone (no gateway account)
+## Run it from npm
 
-This package also runs as a local stdio MCP server — no Pipeworx account, no
-gateway round-trip:
+`@pipeworx/mcp-usda-market-news` is a local stdio bridge to the Pipeworx gateway: your MCP client
+starts it with `npx`, and it forwards every call to the same
+`https://gateway.pipeworx.io/usda-market-news/mcp` endpoint shown above. It needs network access;
+there is no offline mode.
 
 ```json
 {
@@ -105,15 +111,18 @@ gateway round-trip:
 }
 ```
 
-Or run it directly to confirm it starts:
+Without a key it calls anonymously, capped at 50 calls a day. A free account
+raises that to 200 a day: get a key at https://pipeworx.io/signup and add
+`"env": { "PIPEWORX_API_KEY": "<your key>" }` to the server entry.
+The key is sent as a Bearer token, the same way a hosted connection sends it,
+so calls are metered and billed exactly as they are there.
 
-```bash
-npx -y @pipeworx/mcp-usda-market-news
-```
+It lists **only** this pack's tools by default. Set `PIPEWORX_META_TOOLS=1` to
+also list `ask_pipeworx` and the other gateway-wide tools.
 
-It speaks MCP over stdin/stdout and answers `initialize`/`tools/list`/`tools/call`
-for **only** this pack's tools — none of the shared meta-tools the gateway
-connection above adds. Same source, same tools, no ask_pipeworx routing.
+Behind an HTTPS proxy: Node's built-in `fetch` does not read `HTTPS_PROXY` by
+default. Newer Node releases honour it when `NODE_USE_ENV_PROXY=1` is set; check
+your Node version's documentation.
 
 ## Using with ask_pipeworx
 

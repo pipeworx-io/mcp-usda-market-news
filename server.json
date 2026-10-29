@@ -3,7 +3,7 @@
   "name": "io.github.pipeworx-io/usda-market-news",
   "title": "Usda Market News",
   "description": "USDA AMS Market News -- Livestock Mandatory Price Reporting (LMR).",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "websiteUrl": "https://pipeworx.io/packs/usda-market-news",
   "repository": {
     "url": "https://github.com/pipeworx-io/mcp-usda-market-news",
