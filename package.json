@@ -1,6 +1,6 @@
 {
   "name": "@pipeworx/mcp-usda-market-news",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "USDA AMS Market News -- Livestock Mandatory Price Reporting (LMR).",
   "type": "module",
   "main": "lib/index.js",
@@ -27,7 +27,7 @@
     "mode": "gateway",
     "slug": "usda-market-news",
     "gatewaySlug": "usda-market-news",
-    "sourceHash": "v1-9f9e575ea82f967699b7fb3529de892581a24c7bdca397f3c470f092897eba95",
-    "sourceCommit": "98853f34516646cb7c4c1460f09249b262c0269e"
+    "sourceHash": "v1-99734ce7cff761c1e39a712870033e7373fd970c13b80340ddced601294a9de4",
+    "sourceCommit": "ca52e7ed1e1ccad897c2da1b0fa105edc0bc3b2e"
   }
 }
